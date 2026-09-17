@@ -1,0 +1,31 @@
+{
+  "headline": "NVDA +2.4% after hours on supplier demand signal — watch open liquidity and futures gap",
+  "overnight_move": {
+    "pct": 2.4,
+    "note": "After-hours +2.4% on supplier commentary and futures bounce (LABELED MOCK)"
+  },
+  "claims": [
+    {
+      "text": "A key Nvidia supplier raised near-term guidance on hyperscaler AI server pull-ins.",
+      "as_of": "2026-09-09",
+      "source_id": "s1"
+    },
+    {
+      "text": "Nasdaq futures firmed overnight with semis leading; NVDA bid in after-hours.",
+      "as_of": "2026-09-10",
+      "source_id": "s2"
+    },
+    {
+      "text": "Short-dated NVDA call volume and OI elevated near round strikes into the next open.",
+      "as_of": "2026-09-09",
+      "source_id": "s3"
+    }
+  ],
+  "watch_at_open": [
+    "Does the after-hours gap hold in the first 15 minutes of regular session?",
+    "Check premarket volume vs 20-day average — thin print = fade risk",
+    "Scan supplier / peer semis for confirmation or divergence",
+    "Note any official Nvidia commentary that supersedes supplier hearsay"
+  ],
+  "disclaimer": "Not financial advice. Human decides. No live orders."
+}

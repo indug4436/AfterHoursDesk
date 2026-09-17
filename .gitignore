@@ -1,0 +1,12 @@
+node_modules/
+.env
+.DS_Store
+*.log
+logs/*.json
+!logs/sample-session.md
+.vscode/
+.idea/
+
+# Desk workbench local persist
+data/desk-state.json
+data/

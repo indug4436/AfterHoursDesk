@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AfterHoursDesk</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="shell">
+    <header class="top">
+      <div class="brand">
+        <h1>AfterHoursDesk</h1>
+        <p class="tagline">Overnight US equity brief — you decide at open</p>
+      </div>
+      <div class="meta">
+        <span class="track">AI Trading Desk · Personalized Research Workbench</span>
+        <div class="badges" id="badges" aria-live="polite">
+          <span class="badge mock" id="badge-llm">… LLM</span>
+          <span class="badge mock" id="badge-data">… DATA</span>
+          <span class="badge mock" id="badge-market">… MARKET</span>
+          <span class="badge mock" id="badge-skills">… SKILLS</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="desk-layout">
+      <aside class="my-desk" aria-label="My desk">
+        <div class="desk-head">
+          <h2>My desk</h2>
+          <span class="saved-toast" id="desk-saved" hidden>Saved</span>
+        </div>
+
+        <label for="desk-segment">Who I am</label>
+        <input id="desk-segment" type="text" value="Asia overnight US equities" autocomplete="off" />
+
+        <label for="desk-risk">Risk note</label>
+        <input id="desk-risk" type="text" value="No leverage; size small at open" autocomplete="off" />
+
+        <label for="desk-thesis">Standing thesis</label>
+        <textarea id="desk-thesis" rows="2">AI infra leaders on dips; avoid chase after +3% AH</textarea>
+
+        <label for="desk-watchlist">Watchlist</label>
+        <input id="desk-watchlist" type="text" value="NVDA, AAPL, MSFT" autocomplete="off" placeholder="NVDA, AAPL, MSFT" />
+        <div class="chips" id="watchlist-chips" aria-hidden="true"></div>
+
+        <label for="desk-checklist">My checklist</label>
+        <textarea id="desk-checklist" rows="3" placeholder="One item per line">Confirm AH vs prior close
+Check guidance headlines</textarea>
+
+        <div class="desk-actions">
+          <button type="button" id="save-desk" class="secondary">Save desk</button>
+        </div>
+
+        <div class="recall">
+          <h3>Recent briefs</h3>
+          <div class="recall-chips" id="recall-chips">
+            <p class="recall-empty" id="recall-empty">No sessions yet — run a brief</p>
+          </div>
+        </div>
+      </aside>
+
+      <div class="desk-main">
+        <section class="ask" aria-label="Ask the desk">
+          <label for="question">Ask the desk</label>
+          <textarea
+            id="question"
+            rows="3"
+            spellcheck="true"
+          >What hit NVDA after the close and what should I watch at open?</textarea>
+          <div class="ask-row">
+            <label class="sym-label" for="symbol">Symbol</label>
+            <input id="symbol" type="text" value="NVDA" maxlength="12" autocomplete="off" />
+            <button type="button" id="run" class="primary">Run brief</button>
+          </div>
+          <p class="error" id="error" hidden></p>
+        </section>
+
+        <main class="brief" id="brief" aria-live="polite">
+          <p class="empty" id="empty">Ask a question to generate an overnight brief.</p>
+
+          <article class="brief-card" id="brief-card" hidden>
+            <h2 class="headline" id="headline"></h2>
+
+            <section class="block for-my-desk" id="for-my-desk-block" hidden>
+              <h3>For my desk</h3>
+              <p class="fmd-label">Thesis fit</p>
+              <p class="fmd-body" id="fmd-thesis"></p>
+              <p class="fmd-label">Watchlist angle</p>
+              <p class="fmd-body" id="fmd-watchlist"></p>
+              <p class="fmd-label" id="peer-overnight-label" hidden>Watchlist overnight</p>
+              <div class="peer-overnight" id="peer-overnight" hidden></div>
+              <p class="fmd-label">Checklist echo</p>
+              <ul class="watch fmd-checklist" id="fmd-checklist"></ul>
+            </section>
+
+            <section class="block">
+              <h3>What moved</h3>
+              <p class="move" id="overnight"></p>
+            </section>
+
+            <section class="block">
+              <h3>Why it might matter</h3>
+              <ul class="claims" id="claims"></ul>
+            </section>
+
+            <section class="block">
+              <h3>Watch at open</h3>
+              <ul class="watch" id="watch"></ul>
+            </section>
+
+            <section class="block">
+              <h3>Skills</h3>
+              <p class="skills-badge" id="skills-badge" hidden></p>
+              <ul class="skills-strip" id="skills"></ul>
+            </section>
+
+            <section class="block">
+              <h3>Sources</h3>
+              <ul class="sources mono" id="sources"></ul>
+            </section>
+
+            <p class="disclaimer" id="disclaimer"></p>
+            <p class="session mono" id="session"></p>
+          </article>
+        </main>
+      </div>
+    </div>
+
+    <footer>
+      <p>Not financial advice. Human remains the decision-maker. No live orders.</p>
+    </footer>
+  </div>
+  <script src="/app.js" type="module"></script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+{
+  "symbol": "NVDA",
+  "as_of": "2026-09-10T00:30:00Z",
+  "overnight_move": {
+    "pct": 2.4,
+    "note": "After-hours +2.4% on supplier commentary and futures bounce (LABELED MOCK)"
+  },
+  "headlines": [
+    {
+      "id": "s1",
+      "title": "Nvidia supplier flags stronger AI server demand into Q4",
+      "url": "https://example.com/mock/nvda-supplier-demand",
+      "published_at": "2026-09-09T21:15:00Z",
+      "snippet": "A key GPU board supplier raised near-term guidance citing hyperscaler pull-ins.",
+      "host": "example.com"
+    },
+    {
+      "id": "s2",
+      "title": "US equity futures firm; semis lead overnight tape",
+      "url": "https://example.com/mock/semis-overnight",
+      "published_at": "2026-09-10T00:05:00Z",
+      "snippet": "Nasdaq futures up ~0.6%; NVDA and AMD bid in after-hours.",
+      "host": "example.com"
+    },
+    {
+      "id": "s3",
+      "title": "Options desk: NVDA call volume elevated into next session open",
+      "url": "https://example.com/mock/nvda-options-flow",
+      "published_at": "2026-09-09T22:40:00Z",
+      "snippet": "Short-dated call OI clustered near round strikes; skew mildly supportive.",
+      "host": "example.com"
+    },
+    {
+      "id": "s4",
+      "title": "Asia open: chip names watch US AI complex for follow-through",
+      "url": "https://example.com/mock/asia-chips-watch",
+      "published_at": "2026-09-10T01:00:00Z",
+      "snippet": "Regional semis tracking US after-hours leadership; NVDA cited as anchor.",
+      "host": "example.com"
+    }
+  ]
+}

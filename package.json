@@ -1,0 +1,14 @@
+{
+  "name": "afterhoursdesk",
+  "version": "1.0.0",
+  "description": "Overnight US equity NL brief desk for Asia/EU traders — AI Trading Desk track",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "node --watch server.mjs"
+  },
+  "private": true
+}

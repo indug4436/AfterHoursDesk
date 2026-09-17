@@ -1,0 +1,42 @@
+{
+  "symbol": "GENERIC",
+  "as_of": "2026-09-10T00:30:00Z",
+  "overnight_move": {
+    "pct": null,
+    "note": "Overnight % unavailable — no fixture corpus for this symbol"
+  },
+  "headlines": [
+    {
+      "id": "s1",
+      "title": "US after-hours tape mixed; single-name moves await open confirmation",
+      "url": "https://example.com/mock/afterhours-tape",
+      "published_at": "2026-09-09T21:15:00Z",
+      "snippet": "Liquidity thin in extended hours; named movers need regular-session volume to stick.",
+      "host": "example.com"
+    },
+    {
+      "id": "s2",
+      "title": "Equity futures steady overnight; sector leadership undecided into open",
+      "url": "https://example.com/mock/futures-overnight",
+      "published_at": "2026-09-10T00:05:00Z",
+      "snippet": "Nasdaq and S&P futures little changed; no broad risk-on impulse yet.",
+      "host": "example.com"
+    },
+    {
+      "id": "s3",
+      "title": "Options desks flag elevated short-dated interest into next session",
+      "url": "https://example.com/mock/options-flow-generic",
+      "published_at": "2026-09-09T22:40:00Z",
+      "snippet": "Call and put OI clustered near round strikes; skew mixed across large caps.",
+      "host": "example.com"
+    },
+    {
+      "id": "s4",
+      "title": "Asia open: regional desks watch US after-hours leaders for follow-through",
+      "url": "https://example.com/mock/asia-open-watch",
+      "published_at": "2026-09-10T01:00:00Z",
+      "snippet": "Overnight US prints set the tone; confirmation needs first-hour volume.",
+      "host": "example.com"
+    }
+  ]
+}
