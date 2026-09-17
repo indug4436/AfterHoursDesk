@@ -38,6 +38,14 @@ Honest limits for judges and Orchestrator. Thesis workbench lift: Personalized t
 
 - **Skills badge honesty:** `live_skills` / LIVE SKILLS reflect the **latest** skills gather only. If a brief returns all LABELED MOCK digests, mode/badge are mock for that response (no sticky LIVE from a prior ticker).
 
+
+## Progressive brief / claim snippets / thesis journal
+
+- **Progressive SSE** (`progressive: true` or `Accept: text/event-stream`): staged `early` then `final` events — **not** token streaming. Early paints overnight/sources/skills/desk shell; LLM claims arrive on `final`. UI falls back to single JSON if SSE fails.
+- **LLM badge honesty:** during early stage badge is **PENDING** / **MOCK LLM PENDING** — never show LIVE LLM until `final` reports `llm.mode`.
+- **Claim snippets:** `claim.snippet` / `claim.source_title` attached only when `source_id` matches a ranked source title (≤120 chars). No invented quotes.
+- **Thesis journal `thesis_note`:** honest local heuristic vs standing thesis text + overnight % (held / caution / material / inconclusive / insufficient print). **Not advice**, not model judgment — labels only.
+
 ## Do not claim
 
 - Do not present mock fixtures as live market / LLM / Skills.
@@ -45,6 +53,8 @@ Honest limits for judges and Orchestrator. Thesis workbench lift: Personalized t
 - Do not claim overnight % when feed returned null.
 - Do not claim a Personalized Research Workbench if My desk is missing or `for_my_desk` is generic boilerplate ignoring watchlist/thesis.
 - Do not claim `live_skills` / `skills.mode=live` unless a real MCP, Yahoo equity/macro, Fear&Greed, or Bitget candles payload succeeded this process.
+- Do not claim LIVE LLM during progressive early stage (badge must stay pending until final).
+- Do not present thesis_note as model advice or guaranteed held/broken truth — it is a print heuristic.
 
 ## Live keys / fallback
 

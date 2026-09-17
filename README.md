@@ -4,15 +4,15 @@ Overnight US equity NL brief desk for Asia/EU traders.
 **Track:** AI Trading Desk · **Personalized Research Workbench**  
 Human decides — no auto-orders.
 
-**Repo:** `REPO_URL` · **Demo video:** `DEMO_VIDEO_URL`
+**Repo:** `https://github.com/indug4436/AfterHoursDesk` · **Demo video:** `DEMO_VIDEO_URL`
 
-## Judge DEMO (≤3 min) — My desk + live legs
+## Judge DEMO (≤3 min) — My desk + progressive paint
 
 1. `PORT=3010 npm start` → open **http://localhost:3010**
 2. **My desk** — standing thesis, watchlist (NVDA/AAPL/MSFT), checklist already seeded
 3. **Save desk** → chips persist (refresh-safe)
-4. **Run brief** on NVDA → wait for badges: **LLM / DATA / MARKET / SKILLS** (LIVE when keys/feeds work; else honest LABELED MOCK)
-5. Point **For my desk**: thesis_fit · watchlist overnight peer strip · checklist **PASS/WARN** vs overnight print · skill digests (symbol-relevant, not feed counts)
+4. **Run brief** on NVDA → **progressive paint**: overnight + sources + For my desk shell first; then claims/headline (LLM badge stays **PENDING** until final — never fake LIVE)
+5. Point **claim snippets** under each claim · **Thesis journal** (held/broken heuristic notes) · peer strip · checklist **PASS/WARN**
 
 Full click-path: [`DEMO.md`](./DEMO.md) · Submit pack draft: [`docs/SUBMIT_PACK.md`](./docs/SUBMIT_PACK.md)
 
@@ -38,6 +38,14 @@ curl -s -X POST http://localhost:3010/api/brief \
   -d '{"question":"What hit NVDA after the close?","symbol":"NVDA","desk_context":{"segment":"Asia overnight US equities","risk_note":"No leverage","standing_thesis":"AI infra on dips","watchlist":["NVDA","AAPL","MSFT"],"my_checklist":["Confirm AH vs prior close","Check guidance headlines"]}}' | jq '{mode, desk_applied, overnight: .brief.overnight_move, peers: .brief.peer_overnight, checklist: .brief.for_my_desk.checklist_echo, skills: [.brief.skill_digest[] | {skill, mode, summary}]}'
 ```
 
+### Smoke (progressive SSE)
+
+```bash
+curl -sN -X POST http://localhost:3010/api/brief \
+  -H 'Content-Type: application/json' -H 'Accept: text/event-stream' \
+  -d '{"progressive":true,"question":"What hit NVDA after the close?","symbol":"NVDA","desk_context":{"standing_thesis":"AI infra leaders on dips; avoid chase after +3% AH","watchlist":["NVDA","AAPL","MSFT"],"my_checklist":["Confirm AH vs prior close"]}}' | head -c 4000
+```
+
 ## Live keys (optional)
 
 | Var | Effect |
@@ -51,6 +59,9 @@ Without keys → fixtures under `fixtures/` · badges show **LABELED MOCK**. Ove
 
 ## What you get
 
+- **Progressive brief** — overnight / sources / desk shell paint before LLM claims (SSE `early` → `final`)
+- **Claim snippets** — 1-line ranked-source title under each claim when `source_id` matches
+- **Thesis journal** — last-N held/broken heuristic notes from recent briefs (honest, not advice)
 - **Overnight print** — AH / last-vs-prior % (honest null)
 - **Research Skills** — macro · market-intel · news-briefing · sentiment · technical (1–2 thesis-relevant bullets)
 - **For my desk** — thesis_fit, watchlist angle + peer overnight strip, checklist pass/warn/fail

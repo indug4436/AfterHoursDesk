@@ -8,9 +8,11 @@ import { join, extname, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   buildBrief,
+  buildBriefProgressive,
   healthPayload,
   healthPayloadAsync,
   getSession,
+  isBriefInflight,
 } from './lib/brief.mjs';
 import { paperPlan } from './lib/paper_agent_stub.mjs';
 import { runResearchSkills } from './lib/skills.mjs';
@@ -62,6 +64,11 @@ function sendJson(res, status, obj) {
   res.end(body);
 }
 
+function writeSse(res, event, data) {
+  res.write(`event: ${event}\n`);
+  res.write(`data: ${JSON.stringify(data)}\n\n`);
+}
+
 async function readJson(req) {
   const chunks = [];
   for await (const c of req) chunks.push(c);
@@ -105,6 +112,64 @@ const server = createServer(async (req, res) => {
       } catch {
         return sendJson(res, 400, { error: 'invalid JSON body' });
       }
+
+      const accept = String(req.headers.accept || '');
+      const wantProgressive =
+        body.progressive === true || accept.includes('text/event-stream');
+
+      if (wantProgressive) {
+        // Enforce single-flight 429 before starting SSE
+        if (isBriefInflight()) {
+          return sendJson(res, 429, {
+            error: 'brief_in_flight',
+            message: 'A brief is already running — wait or cancel.',
+          });
+        }
+
+        res.writeHead(200, {
+          'Content-Type': 'text/event-stream; charset=utf-8',
+          'Cache-Control': 'no-store',
+          Connection: 'keep-alive',
+        });
+        // Flush headers for proxies
+        if (typeof res.flushHeaders === 'function') res.flushHeaders();
+
+        try {
+          const final = await buildBriefProgressive(
+            {
+              question: body.question,
+              symbol: body.symbol,
+              desk_context: body.desk_context,
+            },
+            {
+              onEarly: (early) => {
+                writeSse(res, 'early', early);
+              },
+            }
+          );
+          writeSse(res, 'final', final);
+        } catch (err) {
+          const status = err.status || 500;
+          if (status === 429) {
+            // Race: another brief started between check and acquire
+            writeSse(res, 'error', {
+              error: 'brief_in_flight',
+              message:
+                err.message ||
+                'A brief is already running — wait or cancel.',
+              status: 429,
+            });
+          } else {
+            writeSse(res, 'error', {
+              error: err.message || 'brief failed',
+              status,
+            });
+          }
+        }
+        return res.end();
+      }
+
+      // Non-progressive: existing single JSON response
       try {
         const payload = await buildBrief({
           question: body.question,

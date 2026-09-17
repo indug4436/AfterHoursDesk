@@ -1,17 +1,17 @@
 # Sample session — AfterHoursDesk
 
-- session_id: `c7c4d903-95d9-41cb-83fd-90b9925538c1`
+- session_id: `40264a1d-227d-4964-b0a1-6f1324dbd975`
 - mode: **live**
 - symbol: NVDA
-- question: What hit NVDA after the close?
+- question: What hit NVDA after the close and what should I watch at open?
 - llm: live / qwen3.8-max
 - market: live / yahoo-chart
 - skills: live
-- generated_at: 2026-09-17T00:53:04.325Z
+- generated_at: 2026-09-17T01:09:02.308Z
 
 ## Headline
 
-NVDA overnight -4.37% as 10-year yield hits 2007 high; Anthropic/quantum headlines keep AI narrative active
+NVDA overnight pressure: yields at 19-year high pressure growth; Anthropic investment and AI rebound forecast in focus
 
 ## Overnight move
 
@@ -21,10 +21,10 @@ NVDA overnight -4.37% as 10-year yield hits 2007 high; Anthropic/quantum headlin
 
 ## Claims
 
-- [2026-09-15] (s1) Nvidia’s investment in Anthropic is framed as securing AI demand amid rising competition.
-- [2026-09-15] (s2) NVIDIA, AMD and Intel forecast coverage says AI stocks are eyeing a rebound.
-- [2026-09-15] (s8) Stocks were pressured as the 10-year T-note yield climbed to a 19-year high.
-- [2026-09-15] (s4) NVIDIA is described as taking a quantum leap in quantum-related opportunity coverage.
+- [2026-09-15] (s1) Nvidia invested in Anthropic to help secure AI demand amid rising competition. — “Nvidia’s Anthropic Investment: Securing AI Demand Amid Rising Competition”
+- [2026-09-15] (s2) AI stocks, including Nvidia, are seen as eyeing a rebound in the latest forecast. — “NVIDIA, AMD and Intel Forecast: AI Stocks Eye a Rebound”
+- [2026-09-15] (s3) The 10-year Treasury yield hit a 2007 high while oil stayed above $100, a macro headwind for long-duration growth names. — “10-year Treasury hits 2007 high as oil stays above $100: AlphaCheck”
+- [2026-09-15] (s8) Stocks were pressured as the 10-year T-note yield climbed to a 19-year high. — “Stocks Pressured as the 10-Year T-Note Yield Climbs to a 19-Year High”
 
 ## Skill digest
 
@@ -32,14 +32,14 @@ NVDA overnight -4.37% as 10-year yield hits 2007 high; Anthropic/quantum headlin
 - **market-intel** (live): Cross-asset feed online (BTC, ETH, Gold, Silver, Oil); no clean % prints — treat as qualitative risk backdrop for semis/US overnight
 - **news-briefing** (live): News feeds online; no NVDA-specific headline in payload — check Sources panel
 - **sentiment** (live): Fear&Greed 50 (Neutral) — for NVDA overnight thesis: mixed backdrop; equity RSI14 45; do not size from this alone
-- **technical** (live): NVDA daily: last 213.90 (+3.1% vs prior); RSI14 45 (neutral); trend below SMA20; MACD-ish flat — equity chart (Yahoo). Crypto risk (not equity): BTC/USDT 4h RSI 45.0
+- **technical** (live): NVDA daily: last 213.90 (+3.1% vs prior); RSI14 45 (neutral); trend below SMA20; MACD-ish flat — equity chart (Yahoo). Crypto risk (not equity): BTC/USDT 4h RSI 44.5
 
 ## Watch at open
 
-- Whether NVDA stabilizes after the -4.37% overnight print
-- 10-year Treasury yield follow-through as macro pressure on AI/semis
-- Any follow-up headlines on Anthropic investment or AI demand
-- Relative action in AAPL and MSFT for mega-cap risk appetite
+- Whether NVDA stabilizes after -4.37% overnight or extends lower with rates still elevated
+- 10-year Treasury yield follow-through at the US open
+- Headlines on Anthropic investment details and any Nvidia guidance commentary
+- Relative strength vs AAPL and MSFT to see if selling is NVDA-specific or broad mega-cap tech
 
 ## Sources
 

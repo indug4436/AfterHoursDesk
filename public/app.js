@@ -20,7 +20,7 @@ const saveDeskBtn = $('save-desk');
 const deskSavedEl = $('desk-saved');
 const watchlistChips = $('watchlist-chips');
 const recallChips = $('recall-chips');
-const recallEmpty = $('recall-empty');
+const thesisJournalEl = $('thesis-journal');
 
 const LS_KEY = 'afterhours_desk_v1';
 const BRIEF_TIMEOUT_MS = 200_000;
@@ -42,7 +42,13 @@ const SEED = {
   updated_at: null,
 };
 
-function setBadge(el, live, liveLabel, mockLabel) {
+function setBadge(el, state, liveLabel, mockLabel, pendingLabel) {
+  if (state === 'pending') {
+    el.textContent = pendingLabel || 'PENDING LLM';
+    el.className = 'badge pending';
+    return;
+  }
+  const live = state === true || state === 'live';
   el.textContent = live ? liveLabel : mockLabel;
   el.className = `badge ${live ? 'live' : 'mock'}`;
 }
@@ -58,12 +64,18 @@ function sourcesLookLive(sources, sourcesMode) {
 }
 
 function setBadges(health, briefMeta) {
-  const llmLive =
-    briefMeta?.llm?.mode === 'live'
-      ? true
-      : briefMeta?.llm?.mode === 'mock'
-        ? false
-        : Boolean(health?.live_llm);
+  const llmMode = briefMeta?.llm?.mode;
+  let llmState;
+  if (llmMode === 'pending' || llmMode === 'mock-pending') {
+    llmState = 'pending';
+  } else if (llmMode === 'live') {
+    llmState = 'live';
+  } else if (llmMode === 'mock') {
+    llmState = 'mock';
+  } else {
+    llmState = Boolean(health?.live_llm) ? 'live' : 'mock';
+  }
+
   const dataLive =
     briefMeta?.sourcesMode === 'live'
       ? true
@@ -90,7 +102,13 @@ function setBadges(health, briefMeta) {
     skillsIsLive = false;
   }
 
-  setBadge(badgeLlm, llmLive, 'LIVE LLM', 'LABELED MOCK LLM');
+  setBadge(
+    badgeLlm,
+    llmState,
+    'LIVE LLM',
+    'LABELED MOCK LLM',
+    llmMode === 'mock-pending' ? 'MOCK LLM PENDING' : 'PENDING LLM'
+  );
   setBadge(badgeData, dataLive, 'LIVE DATA', 'LABELED MOCK DATA');
   setBadge(badgeMarket, marketLive, 'LIVE MARKET', 'LABELED MOCK MARKET');
   setBadge(
@@ -188,6 +206,7 @@ function fillDeskForm(state) {
   const cl = s.my_checklist?.length ? s.my_checklist : SEED.my_checklist;
   deskChecklist.value = cl.join('\n');
   renderRecall(s.recent_sessions || []);
+  renderThesisJournal(s.recent_sessions || []);
 }
 
 function renderRecall(sessions) {
@@ -227,6 +246,44 @@ function renderRecall(sessions) {
       }
     });
     recallChips.appendChild(btn);
+  }
+}
+
+function renderThesisJournal(sessions) {
+  if (!thesisJournalEl) return;
+  thesisJournalEl.innerHTML = '';
+  const withNotes = (sessions || []).filter((s) => s && s.thesis_note);
+  if (!withNotes.length) {
+    const li = document.createElement('li');
+    li.className = 'thesis-empty';
+    li.id = 'thesis-empty';
+    li.textContent = 'No thesis notes yet — run a brief';
+    thesisJournalEl.appendChild(li);
+    return;
+  }
+  for (const s of withNotes) {
+    const li = document.createElement('li');
+    li.className = 'thesis-entry';
+    const pct =
+      s.overnight_pct === null || s.overnight_pct === undefined
+        ? 'n/a'
+        : `${Number(s.overnight_pct) > 0 ? '+' : ''}${s.overnight_pct}%`;
+    const sym = document.createElement('span');
+    sym.className = 'thesis-sym';
+    sym.textContent = s.symbol || '?';
+    const pctEl = document.createElement('span');
+    pctEl.className = 'thesis-pct mono';
+    pctEl.textContent = pct;
+    const note = document.createElement('span');
+    note.className = 'thesis-note';
+    note.textContent = s.thesis_note;
+    li.appendChild(sym);
+    li.appendChild(document.createTextNode(' '));
+    li.appendChild(pctEl);
+    li.appendChild(document.createTextNode(' — '));
+    li.appendChild(note);
+    if (s.headline) li.title = s.headline;
+    thesisJournalEl.appendChild(li);
   }
 }
 
@@ -314,7 +371,10 @@ async function saveDesk() {
         updated_at: saved.updated_at || state.updated_at,
       };
       saveLocalDesk(deskState);
-      if (saved.recent_sessions) renderRecall(saved.recent_sessions);
+      if (saved.recent_sessions) {
+        renderRecall(saved.recent_sessions);
+        renderThesisJournal(saved.recent_sessions);
+      }
     }
   } catch {
     /* local already saved */
@@ -322,13 +382,29 @@ async function saveDesk() {
   flashSaved();
 }
 
-function renderBrief(data) {
-  emptyEl.hidden = true;
-  cardEl.hidden = false;
+function metaFromBriefData(data) {
+  const sourcesMode =
+    data.mode === 'live'
+      ? 'live'
+      : sourcesLookLive(data.sources, null)
+        ? 'live'
+        : data.mode === 'mock'
+          ? 'mock'
+          : undefined;
+  return {
+    llm: data.llm,
+    market: data.market,
+    skills: {
+      ...(data.skills || {}),
+      digests: data.brief?.skill_digest || data.skills?.digests || [],
+    },
+    digests: data.brief?.skill_digest || [],
+    sourcesMode,
+    sourcesLookLive: sourcesLookLive(data.sources, sourcesMode),
+  };
+}
 
-  $('headline').textContent = data.brief.headline || '';
-
-  // For my desk — first when applied
+function renderForMyDesk(data) {
   const fmdBlock = $('for-my-desk-block');
   const fmd = data.brief?.for_my_desk;
   if (data.desk_applied && fmd) {
@@ -386,8 +462,10 @@ function renderBrief(data) {
   } else {
     fmdBlock.hidden = true;
   }
+}
 
-  const om = data.brief.overnight_move || {};
+function renderOvernight(data) {
+  const om = data.brief?.overnight_move || {};
   if (om.pct === null || om.pct === undefined) {
     $('overnight').textContent = `Unavailable — ${om.note || 'no market print'}`;
   } else {
@@ -396,10 +474,19 @@ function renderBrief(data) {
     const src = om.source ? ` · ${om.source}` : '';
     $('overnight').textContent = `${data.symbol} overnight: ${pct}${om.note ? ` — ${om.note}` : ''}${asof}${src}`;
   }
+}
 
-  const claims = $('claims');
-  claims.innerHTML = '';
-  for (const c of data.brief.claims || []) {
+function renderClaims(claims, { synthesizing } = {}) {
+  const claimsEl = $('claims');
+  claimsEl.innerHTML = '';
+  if (synthesizing) {
+    const li = document.createElement('li');
+    li.className = 'synthesizing';
+    li.textContent = 'Synthesizing claims…';
+    claimsEl.appendChild(li);
+    return;
+  }
+  for (const c of claims || []) {
     const li = document.createElement('li');
     const asof = document.createElement('span');
     asof.className = 'asof';
@@ -409,21 +496,42 @@ function renderBrief(data) {
     if (c.source_id) {
       li.appendChild(document.createTextNode(` [${c.source_id}]`));
     }
-    claims.appendChild(li);
+    const snip = c.snippet || c.source_title;
+    if (snip) {
+      const line = document.createElement('div');
+      line.className = 'claim-snippet mono';
+      const q = document.createElement('span');
+      q.className = 'claim-quote';
+      q.textContent = `“${snip}”`;
+      line.appendChild(q);
+      if (c.source_host) {
+        line.appendChild(document.createTextNode(` · ${c.source_host}`));
+      }
+      li.appendChild(line);
+    }
+    claimsEl.appendChild(li);
   }
+}
 
+function renderWatch(items) {
   const watch = $('watch');
   watch.innerHTML = '';
-  for (const w of data.brief.watch_at_open || []) {
+  for (const w of items || []) {
     const li = document.createElement('li');
     li.textContent = w;
     watch.appendChild(li);
   }
+}
 
+function renderSkills(data) {
   const skillsEl = $('skills');
   skillsEl.innerHTML = '';
-  const digests = data.brief.skill_digest || [];
+  const digests = data.brief?.skill_digest || [];
   const skillsBadge = $('skills-badge');
+  if (!digests.length) {
+    skillsBadge.hidden = true;
+    return;
+  }
   if (data.skills?.mode === 'mock' || digests.every((d) => d.mode === 'mock')) {
     skillsBadge.hidden = false;
     skillsBadge.textContent = 'LABELED MOCK SKILLS';
@@ -449,10 +557,12 @@ function renderBrief(data) {
     li.appendChild(document.createTextNode(` — ${d.summary || ''}`));
     skillsEl.appendChild(li);
   }
+}
 
+function renderSources(list) {
   const sources = $('sources');
   sources.innerHTML = '';
-  for (const s of data.sources || []) {
+  for (const s of list || []) {
     const li = document.createElement('li');
     const id = document.createElement('strong');
     id.textContent = `${s.id}${s.rank != null ? ` #${s.rank}` : ''} `;
@@ -481,13 +591,9 @@ function renderBrief(data) {
     }
     sources.appendChild(li);
   }
+}
 
-  $('disclaimer').textContent =
-    data.brief.disclaimer ||
-    'Not financial advice. Human decides. No live orders.';
-  $('session').textContent = `session ${data.session_id} · mode ${data.mode} · llm ${data.llm?.mode}/${data.llm?.model} · market ${data.market?.mode}${data.market?.provider ? '/' + data.market.provider : ''} · skills ${data.skills?.mode}${data.desk_applied ? ' · desk applied' : ''}`;
-
-  // Refresh recall chips from desk state after a successful brief
+function refreshRecallFromServer() {
   fetch('/api/desk/state')
     .then((r) => (r.ok ? r.json() : null))
     .then((st) => {
@@ -496,8 +602,50 @@ function renderBrief(data) {
         deskState.recent_sessions = st.recent_sessions || [];
       }
       renderRecall(st.recent_sessions || []);
+      renderThesisJournal(st.recent_sessions || []);
     })
     .catch(() => {});
+}
+
+/** Progressive early paint — overnight, sources, skills, for_my_desk shell; pending LLM */
+function renderEarly(data) {
+  emptyEl.hidden = true;
+  cardEl.hidden = false;
+
+  $('headline').textContent = data.brief?.headline || 'Synthesizing brief…';
+  renderForMyDesk(data);
+  renderOvernight(data);
+  renderClaims([], { synthesizing: true });
+  renderWatch([]);
+  renderSkills(data);
+  renderSources(data.sources || []);
+
+  $('disclaimer').textContent =
+    data.brief?.disclaimer ||
+    'Not financial advice. Human decides. No live orders.';
+  $('session').textContent = `mode ${data.mode} · llm ${data.llm?.mode}/${data.llm?.model || '…'} · market ${data.market?.mode}${data.market?.provider ? '/' + data.market.provider : ''} · skills ${data.skills?.mode}${data.desk_applied ? ' · desk applied' : ''} · synthesizing…`;
+
+  refreshHealth(metaFromBriefData(data));
+}
+
+function renderBrief(data) {
+  emptyEl.hidden = true;
+  cardEl.hidden = false;
+
+  $('headline').textContent = data.brief.headline || '';
+  renderForMyDesk(data);
+  renderOvernight(data);
+  renderClaims(data.brief.claims || []);
+  renderWatch(data.brief.watch_at_open || []);
+  renderSkills(data);
+  renderSources(data.sources || []);
+
+  $('disclaimer').textContent =
+    data.brief.disclaimer ||
+    'Not financial advice. Human decides. No live orders.';
+  $('session').textContent = `session ${data.session_id} · mode ${data.mode} · llm ${data.llm?.mode}/${data.llm?.model} · market ${data.market?.mode}${data.market?.provider ? '/' + data.market.provider : ''} · skills ${data.skills?.mode}${data.desk_applied ? ' · desk applied' : ''}`;
+
+  refreshRecallFromServer();
 }
 
 function friendlyFetchError(err) {
@@ -510,6 +658,144 @@ function friendlyFetchError(err) {
   return msg || 'Network error';
 }
 
+/**
+ * Parse SSE ReadableStream. Yields { event, data } objects.
+ */
+async function* parseSseStream(body) {
+  const reader = body.getReader();
+  const decoder = new TextDecoder();
+  let buf = '';
+  let eventName = 'message';
+  let dataLines = [];
+
+  const flush = () => {
+    if (!dataLines.length) {
+      eventName = 'message';
+      return null;
+    }
+    const raw = dataLines.join('\n');
+    dataLines = [];
+    const ev = eventName;
+    eventName = 'message';
+    let data;
+    try {
+      data = JSON.parse(raw);
+    } catch {
+      data = { raw };
+    }
+    return { event: ev, data };
+  };
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buf += decoder.decode(value, { stream: true });
+    let idx;
+    while ((idx = buf.indexOf('\n')) >= 0) {
+      let line = buf.slice(0, idx);
+      buf = buf.slice(idx + 1);
+      if (line.endsWith('\r')) line = line.slice(0, -1);
+      if (line === '') {
+        const item = flush();
+        if (item) yield item;
+        continue;
+      }
+      if (line.startsWith(':')) continue;
+      if (line.startsWith('event:')) {
+        eventName = line.slice(6).trim();
+        continue;
+      }
+      if (line.startsWith('data:')) {
+        dataLines.push(line.slice(5).trimStart());
+        continue;
+      }
+    }
+  }
+  if (buf.length) {
+    let line = buf;
+    if (line.endsWith('\r')) line = line.slice(0, -1);
+    if (line.startsWith('event:')) eventName = line.slice(6).trim();
+    else if (line.startsWith('data:')) dataLines.push(line.slice(5).trimStart());
+  }
+  const last = flush();
+  if (last) yield last;
+}
+
+async function runBriefJson(desk_context, signal) {
+  const res = await fetch('/api/brief', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      question: questionEl.value,
+      symbol: symbolEl.value || 'NVDA',
+      desk_context,
+    }),
+    signal,
+  });
+  const data = await res.json().catch(() => ({}));
+  if (res.status === 429) {
+    showError(data.message || 'Brief already running');
+    return null;
+  }
+  if (!res.ok) {
+    showError(data.error || `Error ${res.status}`);
+    return null;
+  }
+  return data;
+}
+
+async function runBriefProgressive(desk_context, signal) {
+  const res = await fetch('/api/brief', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'text/event-stream',
+    },
+    body: JSON.stringify({
+      question: questionEl.value,
+      symbol: symbolEl.value || 'NVDA',
+      desk_context,
+      progressive: true,
+    }),
+    signal,
+  });
+
+  if (res.status === 429) {
+    const data = await res.json().catch(() => ({}));
+    showError(data.message || 'Brief already running');
+    return null;
+  }
+
+  const ct = res.headers.get('content-type') || '';
+  if (!res.ok || !ct.includes('text/event-stream') || !res.body) {
+    // Fallback: try non-progressive JSON
+    if (res.ok && ct.includes('application/json')) {
+      return await res.json();
+    }
+    throw new Error('SSE unavailable');
+  }
+
+  let finalPayload = null;
+  let sawEarly = false;
+  for await (const { event, data } of parseSseStream(res.body)) {
+    if (event === 'early') {
+      sawEarly = true;
+      renderEarly(data);
+    } else if (event === 'final') {
+      finalPayload = data;
+      renderBrief(data);
+      await refreshHealth(metaFromBriefData(data));
+    } else if (event === 'error') {
+      showError(data.message || data.error || 'Brief failed');
+      return null;
+    }
+  }
+  if (!finalPayload && !sawEarly) {
+    throw new Error('SSE empty');
+  }
+  return finalPayload;
+}
+
 async function runBrief() {
   if (loading) {
     showError('Brief already running');
@@ -520,6 +806,7 @@ async function runBrief() {
   runBtn.disabled = true;
   runBtn.textContent = 'Brief running…';
   setBadge(badgeSkills, false, 'LIVE SKILLS', 'LABELED MOCK SKILLS');
+  setBadge(badgeLlm, 'pending', 'LIVE LLM', 'LABELED MOCK LLM', 'PENDING LLM');
 
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), BRIEF_TIMEOUT_MS);
@@ -527,45 +814,23 @@ async function runBrief() {
   const desk_context = deskContextFromState(readFormDesk());
 
   try {
-    const res = await fetch('/api/brief', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        question: questionEl.value,
-        symbol: symbolEl.value || 'NVDA',
-        desk_context,
-      }),
-      signal: ctrl.signal,
-    });
-    const data = await res.json().catch(() => ({}));
-    if (res.status === 429) {
-      showError(data.message || 'Brief already running');
+    let data = null;
+    try {
+      data = await runBriefProgressive(desk_context, ctrl.signal);
+    } catch (sseErr) {
+      if (sseErr.name === 'AbortError') throw sseErr;
+      // Fallback: POST without progressive
+      data = await runBriefJson(desk_context, ctrl.signal);
+      if (data) {
+        renderBrief(data);
+        await refreshHealth(metaFromBriefData(data));
+      }
       return;
     }
-    if (!res.ok) {
-      showError(data.error || `Error ${res.status}`);
-      return;
+    if (data) {
+      // final already rendered in progressive path; ensure health synced
+      await refreshHealth(metaFromBriefData(data));
     }
-    renderBrief(data);
-    const sourcesMode =
-      data.mode === 'live'
-        ? 'live'
-        : sourcesLookLive(data.sources, null)
-          ? 'live'
-          : data.mode === 'mock'
-            ? 'mock'
-            : undefined;
-    await refreshHealth({
-      llm: data.llm,
-      market: data.market,
-      skills: {
-        ...(data.skills || {}),
-        digests: data.brief?.skill_digest || data.skills?.digests || [],
-      },
-      digests: data.brief?.skill_digest || [],
-      sourcesMode,
-      sourcesLookLive: sourcesLookLive(data.sources, sourcesMode),
-    });
   } catch (err) {
     showError(friendlyFetchError(err));
   } finally {
