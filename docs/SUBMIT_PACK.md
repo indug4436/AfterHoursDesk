@@ -8,7 +8,7 @@
 
 | Field | Placeholder |
 |-------|-------------|
-| GitHub repo | `REPO_URL` |
+| GitHub repo | `https://github.com/indug4436/AfterHoursDesk` |
 | Demo / video | `DEMO_VIDEO_URL` |
 | Live deploy (optional) | `DEPLOY_URL` |
 
@@ -33,7 +33,7 @@ Sealed internal scorecard **95/100** (winner-contender). P1 polish: symbol-relev
 
 ### Deliverables
 - Local app: `PORT=3010 npm start` → http://localhost:3010  
-- Repo: `REPO_URL`  
+- Repo: `https://github.com/indug4436/AfterHoursDesk`  
 - Demo path / video: `DEMO_VIDEO_URL` (≤3 min: Save desk → Run brief → For my desk)  
 - Docs: README, DEMO.md, ARCH, API_CONTRACT, KNOWN_LIMITATIONS, this SUBMIT_PACK
 
@@ -52,7 +52,7 @@ The LLM (OpenAI-compatible Bitget Qwen when `LLM_API_KEY` is set; else labeled m
 
 > Built **AfterHoursDesk** for @Bitget_AI Base Camp Hackathon S2 — an overnight US equity NL research workbench for Asia/EU desks. Save **My desk** (thesis + watchlist + checklist) → Run brief → **For my desk** with live overnight %, Skills, peer AH strip, and checklist PASS/WARN. Human decides — no auto-orders.  
 > Track: AI Trading Desk · Personalized Research Workbench  
-> Repo: REPO_URL · Demo: DEMO_VIDEO_URL  
+> Repo: https://github.com/indug4436/AfterHoursDesk · Demo: DEMO_VIDEO_URL  
 > #BitgetHackathon @Bitget_AI
 
 *(Handbook requires `#BitgetHackathon` + `@Bitget_AI`. Keep both tags; introduce the product — not a bare RT. Retweet the official promo when the URL is known.)*
@@ -63,7 +63,7 @@ The LLM (OpenAI-compatible Bitget Qwen when `LLM_API_KEY` is set; else labeled m
 
 - [ ] Track → **Personalized Research Workbench**
 - [ ] Paste six-part description + LLM role
-- [ ] Materials link: `REPO_URL` + `DEMO_VIDEO_URL` (accessible)
+- [ ] Materials link: `https://github.com/indug4436/AfterHoursDesk` + `DEMO_VIDEO_URL` (accessible)
 - [ ] Compliant X post live; paste link
 - [ ] Retweet official promo when available
 - [ ] Confirm no Agentic “live orders” claims
