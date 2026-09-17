@@ -64,3 +64,7 @@ See `ARCH.md`. Desk UI: `public/`. API: `server.mjs` + `lib/`. Limits: `KNOWN_LI
 ## Disclaimer
 
 Not financial advice. Human remains the decision-maker. No live orders.
+
+## Repository
+
+https://github.com/indug4436/AfterHoursDesk
